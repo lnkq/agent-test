@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gateway Tester</title>
+  <link rel="stylesheet" href="/ui/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Gateway Tester</h1>
+    <p class="sub">Send requests through the gateway and watch proxying, canary split and rate limiting.</p>
+  </header>
+
+  <main>
+    <section class="panel builder">
+      <h2>Request</h2>
+      <div class="row">
+        <select id="method">
+          <option>GET</option>
+          <option>POST</option>
+          <option>PUT</option>
+          <option>DELETE</option>
+        </select>
+        <input id="path" type="text" value="/canary/hello" placeholder="/route/path" spellcheck="false" />
+        <button id="send">Send</button>
+      </div>
+      <label>Headers <span class="hint">one per line: Key: value</span></label>
+      <textarea id="headers" rows="3" placeholder="X-Trace: demo"></textarea>
+      <label>Body</label>
+      <textarea id="body" rows="4" placeholder='{"hello": "world"}'></textarea>
+    </section>
+
+    <section class="panel statline">
+      <div class="stat"><span id="c200" class="n">0</span><span class="lbl">200</span></div>
+      <div class="stat"><span id="c429" class="n warm">0</span><span class="lbl">429</span></div>
+      <div class="stat"><span id="cOther" class="n">0</span><span class="lbl">other</span></div>
+    </section>
+
+    <section class="panel">
+      <h2>Canary split</h2>
+      <div id="chart"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Last response</h2>
+      <div id="meta" class="meta"></div>
+      <pre id="response" class="response">(no request yet)</pre>
+    </section>
+  </main>
+
+  <script src="/ui/app.js"></script>
+</body>
+</html>
