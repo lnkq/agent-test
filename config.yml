@@ -1,0 +1,44 @@
+# Example gateway configuration for docker compose.
+#
+# Routes, rate-limit profiles and timeouts live here. The file is bind-mounted
+# into the gateway container and hot-reloaded on change — no restart needed.
+#
+# Inside the compose network the demo upstreams resolve as upstream-a:8081 and
+# upstream-b:8082.
+server:
+  listen: ":8080"
+
+# Named rate-limit profiles (token bucket: refill `rate` tokens/second up to a
+# `burst` ceiling). A route references one by name.
+rate_limits:
+  standard:
+    rate: 5
+    burst: 2
+
+routes:
+  # Pure proxying to a single service.
+  - path: /svc-a
+    upstreams:
+      - url: http://upstream-a:8081
+
+  # Proxying to a second, distinct service.
+  - path: /svc-b
+    upstreams:
+      - url: http://upstream-b:8082
+
+  # Canary: the same request is (randomly, by weight) split between the stable
+  # upstream-a and the canary upstream-b. The chosen upstream is reported back
+  # in the `X-Upstream` response header and visible in the Grafana dashboard.
+  - path: /canary
+    upstreams:
+      - url: http://upstream-a:8081
+        weight: 80
+      - url: http://upstream-b:8082
+        weight: 20
+
+  # Rate-limited route: hammering /limited returns 429 once the burst is spent.
+  - path: /limited
+    upstreams:
+      - url: http://upstream-a:8081
+    limit: standard
+    timeout: 5s

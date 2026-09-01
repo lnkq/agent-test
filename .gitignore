@@ -1,0 +1,6 @@
+# Delete Go build outputs and auxiliary files.
+gateway
+/bin/
+*.test
+*.out
+.DS_Store

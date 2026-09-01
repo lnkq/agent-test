@@ -1,0 +1,49 @@
+# docker-compose stack for the gateway demo.
+#
+# T1 brings up the gateway plus two demo upstreams. Prometheus and Grafana are
+# added in the metrics ticket; config.yml is bind-mounted for hot-reload.
+services:
+  gateway:
+    build: .
+    command: ["gateway", "-config", "/config/config.yml"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.yml:/config/config.yml:ro
+    depends_on:
+      - upstream-a
+      - upstream-b
+
+  upstream-a:
+    build: .
+    command: ["upstream", "-name", "upstream-a", "-listen", "0.0.0.0:8081"]
+    expose:
+      - "8081"
+
+  upstream-b:
+    build: .
+    command: ["upstream", "-name", "upstream-b", "-listen", "0.0.0.0:8082"]
+    expose:
+      - "8082"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - gateway
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
