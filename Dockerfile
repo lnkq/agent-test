@@ -10,4 +10,6 @@ RUN CGO_ENABLED=0 go build -o /out/gateway ./cmd/server \
 FROM alpine:3.20
 COPY --from=build /out/gateway /out/upstream /usr/local/bin/
 EXPOSE 8080
-ENTRYPOINT ["gateway"]
+# Default binary for `docker run`; compose overrides this per service (gateway
+# or upstream). Using CMD (not ENTRYPOINT) lets the command fully control argv.
+CMD ["gateway"]

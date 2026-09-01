@@ -38,7 +38,7 @@ Then open:
 
 | What            | URL                                |
 |-----------------|------------------------------------|
-| Gateway test UI | http://localhost:8080/ui           |
+| Gateway test UI | http://localhost:8081/ui           |
 | Grafana         | http://localhost:3000 (admin/admin)|
 | Prometheus      | http://localhost:9090              |
 
@@ -51,10 +51,10 @@ answering with its own name so you can see routing and canary by eye.
    `GET /svc-a/ping`. The response body reports `"service": "upstream-a"`.
    Sending to `/svc-b/ping` reports `upstream-b`.
 2. **Canary share** — send ~20 requests to `/canary/x` (use
-   `curl http://localhost:8080/canary/x`). Roughly 80% respond from
+   `curl http://localhost:8081/canary/x`). Roughly 80% respond from
    `upstream-a` and 20% from `upstream-b` (config weights 80/20). Each response
    carries `X-Upstream`. The UI's "Canary split" chart shows the same split.
-3. **Rate limiting** — `for i in $(seq 1 8); do curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/limited/x; done`.
+3. **Rate limiting** — `for i in $(seq 1 8); do curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8081/limited/x; done`.
    The first requests return `200`; once the burst (2) is spent you start to see
    `429` until tokens refill.
 4. **Hot-reload** — while the stack runs, edit `config.yml` (e.g. change the
